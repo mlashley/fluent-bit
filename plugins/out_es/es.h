@@ -22,7 +22,7 @@
 #define FLB_OUT_ES_H
 
 #define FLB_ES_DEFAULT_HOST       "127.0.0.1"
-#define FLB_ES_DEFAULT_PORT       92000
+#define FLB_ES_DEFAULT_PORT       9200
 #define FLB_ES_DEFAULT_INDEX      "fluent-bit"
 #define FLB_ES_DEFAULT_TYPE       "_doc"
 #define FLB_ES_DEFAULT_PREFIX     "logstash"
@@ -32,7 +32,7 @@
 #define FLB_ES_DEFAULT_TAG_KEY    "flb-key"
 #define FLB_ES_DEFAULT_HTTP_MAX   "4096"
 
-struct flb_elasticsearch {
+struct flb_es_config {
     /* Elasticsearch index (database) and type (table) */
     char *index;
     char *type;
@@ -98,11 +98,26 @@ struct flb_elasticsearch {
     /* Elasticsearch HTTP API */
     char uri[256];
 
-    /* Upstream connection to the backend server */
-    struct flb_upstream *u;
+    struct mk_list _head;     /* Link to list flb_elasticsearch->configs */
+};
 
-    /* Plugin output instance reference */
+/* Plugin Context */
+struct flb_elasticsearch {
+    /* if HA mode is enabled */
+    int ha_mode;              /* High Availability mode enabled ? */
+    char *ha_upstream;        /* Upstream configuration file      */
+    struct flb_upstream_ha *ha;
+
+    /* Upstream handler and config context for single mode (no HA) */
+    struct flb_upstream *u;
+    struct mk_list configs;
     struct flb_output_instance *ins;
+};
+
+/* Flush callback context */
+struct flb_elasticsearch_flush {
+    struct flb_es_config *ec;
+    char checksum_hex[33];
 };
 
 #endif
