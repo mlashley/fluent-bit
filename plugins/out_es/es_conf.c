@@ -143,7 +143,7 @@ static int config_set_properties(struct flb_upstream_node *node,
         ec->time_key = flb_sds_create(tmp);
     }
     else {
-        ec->time_key = flb_sds_create("FLB_ES_DEFAULT_TIME_KEY");
+        ec->time_key = flb_sds_create(FLB_ES_DEFAULT_TIME_KEY);
     }
 
     tmp = config_get_property("time_key_format", node, ctx);
